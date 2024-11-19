@@ -1,57 +1,49 @@
 public class Parser {
-    private byte[] input;
-    private int current;
+    private Scanner scanner;
+    private Token currentToken;
 
 
-    public Parser(byte[] bytes) {
-        this.input = bytes;
+    public Parser(byte[] input) {
+        scanner = new Scanner(input);
+        currentToken = scanner.nextToken();
     }
 
     public void parse() {
         expr();
     }
 
-
-    private char peek(){
-        if(current < input.length){
-            return (char) input[current];
-        }
-        return '\0';
-    }
-
-    private void match(char c){
-        if(c == peek()){
-            current++;
-        } else {
-            throw new Error("erro de sintaxe");
+    private void match(TokenType t) {
+        if (currentToken.type == t) {
+            nextToken();
+        }else {
+            throw new Error("syntax error");
         }
     }
     void expr(){
-        digit();
+        number();
         oper();
     }
 
-    private void digit() {
-        if(Character.isDigit(peek())){
-            System.out.println("push " + peek());
-            match(peek());
-        } else {
-            throw new Error("Erro de sintaxe");
-        }
-
+    void number () {
+        System.out.println("push " + currentToken.lexeme);
+        match(TokenType.NUMBER);
     }
 
-    private void oper() {
-        if(peek() == '+'){
-            match('+');
-            digit();
+    void oper () {
+        if (currentToken.type == TokenType.PLUS) {
+            match(TokenType.PLUS);
+            number();
             System.out.println("add");
             oper();
-        } else if (peek() == '-') {
-            match('-');
-            digit();
+        } else if (currentToken.type == TokenType.MINUS) {
+            match(TokenType.MINUS);
+            number();
             System.out.println("sub");
             oper();
         }
+    }
+
+    private void nextToken(){
+        currentToken = scanner.nextToken();
     }
 }
